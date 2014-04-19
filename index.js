@@ -27,7 +27,8 @@ function MiddleEarth(app) {
 /*
  * load middlewares
  *
- * #load should ALWAYS be called first or using the shorting app.middlewares([..,..]);
+ * #load should ALWAYS be called first or using the short cut app.middlewares([..,..]),
+ * it will overwrite any exisiting middlewares in queue
  *
  * @param {Array} mws
  * @return {MiddleEarth}
