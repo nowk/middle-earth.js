@@ -276,6 +276,41 @@ describe("middle-earth", function() {
       c.restore();
     });
   });
+
+  describe("exec", function() {
+    it("invocates exec instead of applying it to `use`", function(done) {
+      var route = express.Router();
+      route.get("/posts", function(req, res, next) {
+        res.send({middlewares: res.locals.middlewares});
+      });
+
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')},
+          {name: 'two', fn: mw('two')}
+        ])
+        .after('one', {name: 'routes', exec: function() {
+          app.use(route);
+        }})
+        .finish();
+
+      app.get('/', fn);
+
+      request(app)
+        .get("/")
+        .expect(200, {
+          middlewares: ['one', 'two']
+        })
+        .end(function() {
+          request(app)
+            .get("/posts")
+            .expect(200, {
+              middlewares: ['one']
+            })
+            .end(done);
+        });
+    });
+  });
 });
 
 

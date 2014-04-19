@@ -112,6 +112,38 @@ Pathed middlewares
 
     app.middlewares().finish();
 
+---
+
+Execute a function at a specific point. Primary use would be to allow routes to be mapped at a particular spot.
+
+    var route = express.Router();
+    route.get("/posts", function(req, res, next) {
+      res.send(200);
+    });
+
+    app
+      .middlewares([
+        {name: 'compress', fn: compress()},
+        {name: 'logger', fn: Log.logger('dev')},
+        {name: 'body-parser', fn: bodyParser()},
+        {name: 'method-override', fn: methodOverride()},
+        {name: 'cookie-parser', fn: cookieParser('secret')},
+        {name: 'session', fn: session({secret: 'secret', key: 'sid', cookie: {secure: true}})},
+        {name: 'csrf', fn: Csrf.csrf()},
+        {name: 'csrf-local-token', fn: Csrf.localToken()},
+        {name: 'static', fn: express.static(__dirname+'/../public')}
+      ]);
+
+    app
+      .middlewares()
+      .before('static', {name: 'routes', exec: function() {
+        app.use(route);
+      }});
+
+    app.middlewares().finish();
+
+    // inserts the "/posts" route before "static" middleware
+
 
 ## Important
 
