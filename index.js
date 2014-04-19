@@ -90,12 +90,7 @@ MiddleEarth.prototype.append = function(mws) {
  * @return {MiddleEarth}
  */
 
-MiddleEarth.prototype.before = function(name, mw) {
-  var index = indexOf.call(this, name);
-  this.middlewares.splice(index, 0, mw);
-
-  return this;
-};
+MiddleEarth.prototype.before = insert();
 
 
 /*
@@ -106,12 +101,34 @@ MiddleEarth.prototype.before = function(name, mw) {
  * @return {MiddleEarth}
  */
 
-MiddleEarth.prototype.after = function(name, mw) {
-  var index = indexOf.call(this, name);
-  this.middlewares.splice(index+1, 0, mw);
+MiddleEarth.prototype.after = insert(true);
 
-  return this;
-};
+
+/*
+ * insert method
+ *
+ * @param {Boolean} after
+ * @return {Function}
+ */
+
+function insert(after) {
+  return function(name, mw) {
+    var index = indexOf.call(this, name);
+
+    if (index <= 0) {
+      var msg = "Middleware named `"+name+"` could not be found";
+      throw new Error(msg);
+    }
+
+    if (true === after) {
+      index = index+1;
+    }
+
+    this.middlewares.splice(index, 0, mw);
+
+    return this;
+  };
+}
 
 
 /*

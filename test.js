@@ -126,6 +126,31 @@ describe("middle-earth", function() {
       })
       .end(done);
   });
+
+
+  describe("before", function() {
+    it("throws an error if the middleware is not found", function() {
+      assert.throw(function() {
+        app
+          .middlewares([
+            {name: 'one', fn: mw('one')}
+          ])
+          .before('two', {name: 'a', fn: mw('a')});
+      }, "Middleware named `two` could not be found");
+    });
+  });
+
+  describe("after", function() {
+    it("throws an error if the middleware is not found", function() {
+      assert.throw(function() {
+        app
+          .middlewares([
+            {name: 'one', fn: mw('one')}
+          ])
+          .after('two', {name: 'a', fn: mw('a')});
+      }, "Middleware named `two` could not be found");
+    });
+  });
 });
 
 
