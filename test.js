@@ -196,6 +196,52 @@ describe("middle-earth", function() {
           .end(done);
       });
   });
+
+  it("throws when there is a name collision", function() {
+    assert.throw(function() {
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')},
+          {name: 'one', fn: mw('two')}
+        ]);
+    }, "Middleware with name `one` already exists");
+
+    assert.throw(function() {
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')}
+        ])
+        .before('one', {name: 'one', fn: mw('two')});
+    }, "Middleware with name `one` already exists");
+
+    assert.throw(function() {
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')}
+        ])
+        .after('one', {name: 'one', fn: mw('two')});
+    }, "Middleware with name `one` already exists");
+
+    assert.throw(function() {
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')}
+        ])
+        .prepend([
+          {name: 'one', fn: mw('two')}
+        ]);
+    }, "Middleware with name `one` already exists");
+
+    assert.throw(function() {
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')}
+        ])
+        .append([
+          {name: 'one', fn: mw('two')}
+        ]);
+    }, "Middleware with name `one` already exists");
+  });
 });
 
 

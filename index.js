@@ -40,6 +40,7 @@ MiddleEarth.prototype.load = function(mws) {
   self.middlewares = [];
 
   mws.forEach(function(o, i) {
+    checkName.call(self, o.name);
     self.middlewares.push(o);
   });
 
@@ -74,6 +75,8 @@ MiddleEarth.prototype.finish = function() {
  */
 
 MiddleEarth.prototype.prepend = function(mws) {
+  checkNames.call(this, mws);
+
   this.middlewares = [].concat.apply(mws, this.middlewares);
 
   return this;
@@ -88,6 +91,8 @@ MiddleEarth.prototype.prepend = function(mws) {
  */
 
 MiddleEarth.prototype.append = function(mws) {
+  checkNames.call(this, mws);
+
   this.middlewares = [].concat.apply(this.middlewares, mws);
 
   return this;
@@ -132,6 +137,8 @@ function insert(after) {
       throw new Error(msg);
     }
 
+    checkName.call(this, mw.name);
+
     if (true === after) {
       index = index+1;
     }
@@ -165,6 +172,33 @@ function indexOf(name) {
 }
 
 
+/*
+ * throw error if middleware name exists
+ *
+ * @param {String} name
+ */
+
+function checkName(name) {
+  if (indexOf.call(this, name) >= 0) {
+    var msg = 'Middleware with name `'+name+'` already exists';
+    throw new Error(msg);
+  }
+}
+
+
+/*
+ * check for names in array of incoming middlewares (used in prepend/append)
+ *
+ * @param {Array} mws
+ */
+
+function checkNames(mws) {
+  var self = this;
+
+  mws.forEach(function(o, i) {
+    checkName.call(self, o.name);
+  });
+}
 
 
 /*
