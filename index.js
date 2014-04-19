@@ -13,6 +13,9 @@ module.exports = MiddleEarth;
 
 /*
  * MiddleEarth
+ *
+ * @param {Application} app
+ * @constructor
  */
 
 function MiddleEarth(app) {
