@@ -1,6 +1,6 @@
 # Middle Earth
 
-Middleware manage for [Express.js](https://github.com/visionmedia/express)
+Middleware manager for [Express.js](https://github.com/visionmedia/express)
 
 ## Why...?
 
