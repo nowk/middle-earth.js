@@ -4,7 +4,7 @@ Middleware manager for [Express.js](https://github.com/visionmedia/express)
 
 ## Why...?
 
-Needed a ring to control them all.
+Core objective is to keep configurations for different enviroments/use cases in one spot vs. spreading them out based on where they need to be loaded.
 
 ## Install
 
@@ -12,17 +12,17 @@ Needed a ring to control them all.
 
 ## Usage
 
-Examples below are basic. But should give you an idea of what is possible.
+Examples below are basic. But should provide you with an idea of what you can do. 
 
 ---
 
-Appending and/or prepending.
-
     var express = require('express');
-    var middlewares = require('middle-earth');
-    var bodyParser = require('body-parser');
-    var methodOverride = require('method-override');
+    var MiddleEarth = require('middle-earth');
+
     var app = express();
+
+
+Appending and/or prepending.
 
     app
       .middlewares([
@@ -37,24 +37,26 @@ Appending and/or prepending.
           {name: 'basicAuth', cb: express.basicAuth("user", "strong")}
         ])
         .append([
-          {name: 'something-else', cb: function(req, res, next) { /* ... */ }},
-          {name: 'and-another', cb: function(req, res, next) { /* ... */ }}
+          {name: 'something-else', cb: somethingElse()},
+          {name: 'and-another', cb: andAnother()}
         ]);
     }
 
-    app.middlewares().finish(); // apply the middlewares to app. `use` them.
+    app.middlewares().finish();
 
+Equivalent to:
 
-    // !production || !staging
-    // 1. body-parser
-    // 2. method-override
+    if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
+      app.use(express.basicAuth("user", "strong"));
+    }
 
-    // production || staging
-    // 1. basicAuth
-    // 2. body-parser
-    // 3. method-override
-    // 4. something-else
-    // 5. and-another
+    app.use(bodyParser());
+    app.use(methodOverride());
+
+    if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
+      app.use(somethingElse());
+      app.use(andAnother());
+    }
 
 ---
 
@@ -66,35 +68,28 @@ You can also insert a middleware before or after another.
         {name: 'method-override', cb: methodOverride()}
       ]);
 
-
-    if ('staging' === process.env.NODE_ENV) {
+    if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
       app
         .middlewares()
         .before('body-parser', {name: 'basicAuth', cb: express.basicAuth("user", "strong")});
-    }
-
-    if ('production' === process.env.NODE_ENV) {
-      app
-        .middlewares()
-        .after('body-parser', {name: 'basicAuth', cb: function(req, res, next) { /* ... */ }});
+        .after('body-parser', {name: 'other', cb: other()});
     }
 
     app.middlewares().finish();
 
+Equivalent to:
 
-    // !production || !staging
-    // 1. body-parser
-    // 2. method-override
+    if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
+      app.use(express.basicAuth("user", "strong"));
+    }
 
-    // staging
-    // 1. basicAuth
-    // 2. body-parser
-    // 3. method-override
+    app.use(bodyParser());
+    app.use(methodOverride());
 
-    // production
-    // 1. body-parser
-    // 2. basicAuth
-    // 3. method-override
+    if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
+      app.use(other());
+    }
+
 
 ---
 
@@ -106,11 +101,34 @@ Pathed middlewares
         {name: 'method-override', cb: methodOverride()},
         {name: 'static', cb: express.static(__dirname+'/../public')}
       ])
-      .append([
-        {name: 'component-build-static', cb: express.static(__dirname + '/../build'), path: '/build'}
-      ]);
+
+    if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
+      app
+        .middlewares()
+        .prepend([
+          {name: "basic-auth", cb: express.basicAuth("user", "strong"), path: "/admin"}
+        ])
+        .append([
+          {name: 'other', cb: other()}
+        ]);
+    }
 
     app.middlewares().finish();
+
+Equivalent to:
+
+    if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
+      app.use("/admin", express.basicAuth("user", "strong"));
+    }
+
+    app.use(bodyParser());
+    app.use(methodOverride());
+    app.use(express.static(__dirname+'/../public'));
+
+    if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
+      app.use(other());
+    }
+
 
 ---
 
@@ -142,7 +160,18 @@ Execute a function at a specific point. Primary use would be to allow routes to 
 
     app.middlewares().finish();
 
-    // inserts the "/posts" route before "static" middleware
+Equivalent to:
+
+    app.use(compress());
+    app.use(Log.logger('dev'));
+    app.use(bodyParser());
+    app.use(methodOverride());
+    app.use(cookieParser('secret'));
+    app.use(session({secret: 'secret', key: 'sid', cookie: {secure: true}}));
+    app.use(Csrf.csrf());
+    app.use(Csrf.localToken());
+    app.use(route);
+    app.use(express.static(__dirname+'/../public'));
 
 
 ## Important
