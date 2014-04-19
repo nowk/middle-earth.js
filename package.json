@@ -4,7 +4,7 @@
   "description": "Middlware manager for express.js",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --harmony test"
+    "test": "mocha test"
   },
   "repository": {
     "type": "git",
