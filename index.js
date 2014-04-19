@@ -21,6 +21,7 @@ module.exports = MiddleEarth;
 function MiddleEarth(app) {
   this.app = app;
   this.middlewares = [];
+  this.finished = false;
 }
 
 
@@ -55,6 +56,10 @@ MiddleEarth.prototype.load = function(mws) {
 MiddleEarth.prototype.finish = function() {
   var self = this;
 
+  if (self.finished) {
+    console.warn("MiddleEarth middlewares have already been applied");
+  }
+
   self.middlewares.forEach(function(m, i) {
     if (m.hasOwnProperty('path')) {
       self.app.use(m.path, m.fn);
@@ -63,7 +68,8 @@ MiddleEarth.prototype.finish = function() {
     }
   });
 
-  // delete self.app.middleEarth;
+  self.middlewares = [];
+  self.finished = true;
 };
 
 

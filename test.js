@@ -2,6 +2,7 @@
 
 var assert = require('chai').assert;
 var request = require('supertest');
+var sinon = require('sinon');
 
 var express = require('express');
 var middlewares = require('.');
@@ -241,6 +242,39 @@ describe("middle-earth", function() {
           {name: 'one', fn: mw('two')}
         ]);
     }, "Middleware with name `one` already exists");
+  });
+
+  describe("finish", function() {
+    it("clears out the middlewares queue", function() {
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')},
+        ])
+        .append([
+          {name: 'two', fn: mw('two')}
+        ]);
+      assert.lengthOf(app.middlewares().middlewares, 2);
+
+      app.middlewares().finish();
+      assert.lengthOf(app.middlewares().middlewares, 0);
+    });
+
+    it("warns when #finish is called more than once", function() {
+      var msg = "MiddleEarth middlewares have already been applied";
+      var c = sinon.mock(console);
+      c.expects('warn').withArgs(msg).once();
+
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')}
+        ])
+        .finish();
+
+      app.middlewares().finish();
+
+      c.verify();
+      c.restore();
+    });
   });
 });
 
