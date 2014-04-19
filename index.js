@@ -61,11 +61,13 @@ MiddleEarth.prototype.finish = function() {
   }
 
   self.middlewares.forEach(function(m, i) {
+    var args = [m.fn];
+
     if (m.hasOwnProperty('path')) {
-      self.app.use(m.path, m.fn);
-    } else {
-      self.app.use(m.fn);
+      args.splice(0, 0, m.path);
     }
+
+    self.app.use.apply(self.app, args);
   });
 
   self.middlewares = [];
