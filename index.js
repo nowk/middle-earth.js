@@ -27,12 +27,16 @@ function MiddleEarth(app) {
 /*
  * load middlewares
  *
+ * #load should ALWAYS be called first or using the shorting app.middlewares([..,..]);
+ *
  * @param {Array} mws
  * @return {MiddleEarth}
  */
 
 MiddleEarth.prototype.load = function(mws) {
   var self = this;
+
+  self.middlewares = [];
 
   mws.forEach(function(o, i) {
     self.middlewares.push(o);

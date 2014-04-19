@@ -43,6 +43,24 @@ describe("middle-earth", function() {
       .end(done);
   });
 
+  describe("load", function() {
+    it("always over writes the existing middlewares in queue to be `use`", function(){
+      app
+        .middlewares([
+          {name: 'one', fn: mw('one')}
+        ])
+        .append([
+          {name: 'a', fn: mw('a')}
+        ])
+        .load([
+          {name: 'two', fn: mw('one')}
+        ]);
+
+      assert.lengthOf(app.middlewares().middlewares, 1);
+      assert.equal(app.middlewares().middlewares[0].name, 'two');
+    });
+  });
+
   it("prepends middlewares", function(done) {
     app
       .middlewares()
@@ -126,7 +144,6 @@ describe("middle-earth", function() {
       })
       .end(done);
   });
-
 
   describe("before", function() {
     it("throws an error if the middleware is not found", function() {
