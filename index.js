@@ -127,7 +127,7 @@ function insert(after) {
   return function(name, mw) {
     var index = indexOf.call(this, name);
 
-    if (index <= 0) {
+    if (index < 0) {
       var msg = "Middleware named `"+name+"` could not be found";
       throw new Error(msg);
     }
