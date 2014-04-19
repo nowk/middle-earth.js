@@ -8,7 +8,7 @@ var express = require('express');
 var middlewares = require('.');
 
 // var app = express();
-var fn = function(req, res, next) {
+var cb = function(req, res, next) {
   res.send({middlewares: res.locals.middlewares});
 };
 
@@ -28,13 +28,13 @@ describe("middle-earth", function() {
   it("loads middlewares", function(done) {
     app
       .middlewares([
-        {name: 'one', fn: mw('one')},
-        {name: 'two', fn: mw('two')},
-        {name: 'three', fn: mw('three')}
+        {name: 'one', cb: mw('one')},
+        {name: 'two', cb: mw('two')},
+        {name: 'three', cb: mw('three')}
       ])
       .finish();
 
-    app.get("/", fn);
+    app.get("/", cb);
 
     request(app)
       .get("/")
@@ -48,13 +48,13 @@ describe("middle-earth", function() {
     it("always over writes the existing middlewares in queue to be `use`", function(){
       app
         .middlewares([
-          {name: 'one', fn: mw('one')}
+          {name: 'one', cb: mw('one')}
         ])
         .append([
-          {name: 'a', fn: mw('a')}
+          {name: 'a', cb: mw('a')}
         ])
         .load([
-          {name: 'two', fn: mw('one')}
+          {name: 'two', cb: mw('one')}
         ]);
 
       assert.lengthOf(app.middlewares().middlewares, 1);
@@ -66,16 +66,16 @@ describe("middle-earth", function() {
     app
       .middlewares()
       .load([
-        {name: 'one', fn: mw('one')},
-        {name: 'two', fn: mw('two')}
+        {name: 'one', cb: mw('one')},
+        {name: 'two', cb: mw('two')}
       ])
       .prepend([
-        {name: 'three', fn: mw('three')},
-        {name: 'four', fn: mw('four')}
+        {name: 'three', cb: mw('three')},
+        {name: 'four', cb: mw('four')}
       ])
       .finish();
 
-    app.get("/", fn);
+    app.get("/", cb);
 
     request(app)
       .get("/")
@@ -88,22 +88,22 @@ describe("middle-earth", function() {
   it("appends middlewares", function(done) {
     app
       .middlewares([
-        {name: 'three', fn: mw('three')}
+        {name: 'three', cb: mw('three')}
       ])
       .prepend([
-        {name: 'two', fn: mw('two')}
+        {name: 'two', cb: mw('two')}
       ]);
 
     app
       .middlewares()
       .append([
-        {name: 'four', fn: mw('four')},
-        {name: 'five', fn: mw('five')}
+        {name: 'four', cb: mw('four')},
+        {name: 'five', cb: mw('five')}
       ]);
 
     app.middlewares().finish();
 
-    app.get("/", fn);
+    app.get("/", cb);
 
     request(app)
       .get("/")
@@ -116,27 +116,27 @@ describe("middle-earth", function() {
   it("inserts before/after another middleware", function(done) {
     app
       .middlewares([
-        {name: 'three', fn: mw('three')},
-        {name: 'four', fn: mw('four')}
+        {name: 'three', cb: mw('three')},
+        {name: 'four', cb: mw('four')}
       ])
       .append([
-        {name: 'five', fn: mw('five')}
+        {name: 'five', cb: mw('five')}
       ])
       .prepend([
-        {name: 'one', fn: mw('one')},
-        {name: 'two', fn: mw('two')}
+        {name: 'one', cb: mw('one')},
+        {name: 'two', cb: mw('two')}
       ]);
 
     app
       .middlewares()
-      .before("two", {name: 'b', fn: mw('b')})
-      .before("b", {name: 'a', fn: mw('a')})
-      .after("three", {name: 'c', fn: mw('c')})
-      .after("c", {name: 'd', fn: mw('d')});
+      .before("two", {name: 'b', cb: mw('b')})
+      .before("b", {name: 'a', cb: mw('a')})
+      .after("three", {name: 'c', cb: mw('c')})
+      .after("c", {name: 'd', cb: mw('d')});
 
     app.middlewares().finish();
 
-    app.get("/", fn);
+    app.get("/", cb);
 
     request(app)
       .get("/")
@@ -151,9 +151,9 @@ describe("middle-earth", function() {
       assert.throw(function() {
         app
           .middlewares([
-            {name: 'one', fn: mw('one')}
+            {name: 'one', cb: mw('one')}
           ])
-          .before('two', {name: 'a', fn: mw('a')});
+          .before('two', {name: 'a', cb: mw('a')});
       }, "Middleware named `two` could not be found");
     });
   });
@@ -163,9 +163,9 @@ describe("middle-earth", function() {
       assert.throw(function() {
         app
           .middlewares([
-            {name: 'one', fn: mw('one')}
+            {name: 'one', cb: mw('one')}
           ])
-          .after('two', {name: 'a', fn: mw('a')});
+          .after('two', {name: 'a', cb: mw('a')});
       }, "Middleware named `two` could not be found");
     });
   });
@@ -177,7 +177,7 @@ describe("middle-earth", function() {
 
     app
       .middlewares([
-        {name: 'one', fn: one, path: "/one"}
+        {name: 'one', cb: one, path: "/one"}
       ])
       .finish();
 
@@ -202,44 +202,44 @@ describe("middle-earth", function() {
     assert.throw(function() {
       app
         .middlewares([
-          {name: 'one', fn: mw('one')},
-          {name: 'one', fn: mw('two')}
+          {name: 'one', cb: mw('one')},
+          {name: 'one', cb: mw('two')}
         ]);
     }, "Middleware with name `one` already exists");
 
     assert.throw(function() {
       app
         .middlewares([
-          {name: 'one', fn: mw('one')}
+          {name: 'one', cb: mw('one')}
         ])
-        .before('one', {name: 'one', fn: mw('two')});
+        .before('one', {name: 'one', cb: mw('two')});
     }, "Middleware with name `one` already exists");
 
     assert.throw(function() {
       app
         .middlewares([
-          {name: 'one', fn: mw('one')}
+          {name: 'one', cb: mw('one')}
         ])
-        .after('one', {name: 'one', fn: mw('two')});
+        .after('one', {name: 'one', cb: mw('two')});
     }, "Middleware with name `one` already exists");
 
     assert.throw(function() {
       app
         .middlewares([
-          {name: 'one', fn: mw('one')}
+          {name: 'one', cb: mw('one')}
         ])
         .prepend([
-          {name: 'one', fn: mw('two')}
+          {name: 'one', cb: mw('two')}
         ]);
     }, "Middleware with name `one` already exists");
 
     assert.throw(function() {
       app
         .middlewares([
-          {name: 'one', fn: mw('one')}
+          {name: 'one', cb: mw('one')}
         ])
         .append([
-          {name: 'one', fn: mw('two')}
+          {name: 'one', cb: mw('two')}
         ]);
     }, "Middleware with name `one` already exists");
   });
@@ -248,10 +248,10 @@ describe("middle-earth", function() {
     it("clears out the middlewares queue", function() {
       app
         .middlewares([
-          {name: 'one', fn: mw('one')},
+          {name: 'one', cb: mw('one')},
         ])
         .append([
-          {name: 'two', fn: mw('two')}
+          {name: 'two', cb: mw('two')}
         ]);
       assert.lengthOf(app.middlewares().middlewares, 2);
 
@@ -266,7 +266,7 @@ describe("middle-earth", function() {
 
       app
         .middlewares([
-          {name: 'one', fn: mw('one')}
+          {name: 'one', cb: mw('one')}
         ])
         .finish();
 
@@ -286,15 +286,15 @@ describe("middle-earth", function() {
 
       app
         .middlewares([
-          {name: 'one', fn: mw('one')},
-          {name: 'two', fn: mw('two')}
+          {name: 'one', cb: mw('one')},
+          {name: 'two', cb: mw('two')}
         ])
-        .after('one', {name: 'routes', exec: function() {
+        .after('one', {name: 'routes', fn: function() {
           app.use(route);
         }})
         .finish();
 
-      app.get('/', fn);
+      app.get('/', cb);
 
       request(app)
         .get("/")

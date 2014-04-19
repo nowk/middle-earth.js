@@ -26,19 +26,19 @@ Appending and/or prepending.
 
     app
       .middlewares([
-        {name: 'body-parser', fn: bodyParser()},
-        {name: 'method-override', fn: methodOverride()}
+        {name: 'body-parser', cb: bodyParser()},
+        {name: 'method-override', cb: methodOverride()}
       ]);
 
     if (['production', 'staging'].indexOf(process.env.NODE_ENV) >= 0) {
       app
         .middlewares()
         .prepend([
-          {name: 'basicAuth', fn: express.basicAuth("user", "strong")}
+          {name: 'basicAuth', cb: express.basicAuth("user", "strong")}
         ])
         .append([
-          {name: 'something-else', fn: function(req, res, next) { /* ... */ }},
-          {name: 'and-another', fn: function(req, res, next) { /* ... */ }}
+          {name: 'something-else', cb: function(req, res, next) { /* ... */ }},
+          {name: 'and-another', cb: function(req, res, next) { /* ... */ }}
         ]);
     }
 
@@ -62,21 +62,21 @@ You can also insert a middleware before or after another.
 
     app
       .middlewares([
-        {name: 'body-parser', fn: bodyParser()},
-        {name: 'method-override', fn: methodOverride()}
+        {name: 'body-parser', cb: bodyParser()},
+        {name: 'method-override', cb: methodOverride()}
       ]);
 
 
     if ('staging' === process.env.NODE_ENV) {
       app
         .middlewares()
-        .before('body-parser', {name: 'basicAuth', fn: express.basicAuth("user", "strong")});
+        .before('body-parser', {name: 'basicAuth', cb: express.basicAuth("user", "strong")});
     }
 
     if ('production' === process.env.NODE_ENV) {
       app
         .middlewares()
-        .after('body-parser', {name: 'basicAuth', fn: function(req, res, next) { /* ... */ }});
+        .after('body-parser', {name: 'basicAuth', cb: function(req, res, next) { /* ... */ }});
     }
 
     app.middlewares().finish();
@@ -102,12 +102,12 @@ Pathed middlewares
 
     app
       .middlewares([
-        {name: 'body-parser', fn: bodyParser()},
-        {name: 'method-override', fn: methodOverride()},
-        {name: 'static', fn: express.static(__dirname+'/../public')}
+        {name: 'body-parser', cb: bodyParser()},
+        {name: 'method-override', cb: methodOverride()},
+        {name: 'static', cb: express.static(__dirname+'/../public')}
       ])
       .append([
-        {name: 'component-build-static', fn: express.static(__dirname + '/../build'), path: '/build'}
+        {name: 'component-build-static', cb: express.static(__dirname + '/../build'), path: '/build'}
       ]);
 
     app.middlewares().finish();
@@ -123,20 +123,20 @@ Execute a function at a specific point. Primary use would be to allow routes to 
 
     app
       .middlewares([
-        {name: 'compress', fn: compress()},
-        {name: 'logger', fn: Log.logger('dev')},
-        {name: 'body-parser', fn: bodyParser()},
-        {name: 'method-override', fn: methodOverride()},
-        {name: 'cookie-parser', fn: cookieParser('secret')},
-        {name: 'session', fn: session({secret: 'secret', key: 'sid', cookie: {secure: true}})},
-        {name: 'csrf', fn: Csrf.csrf()},
-        {name: 'csrf-local-token', fn: Csrf.localToken()},
-        {name: 'static', fn: express.static(__dirname+'/../public')}
+        {name: 'compress', cb: compress()},
+        {name: 'logger', cb: Log.logger('dev')},
+        {name: 'body-parser', cb: bodyParser()},
+        {name: 'method-override', cb: methodOverride()},
+        {name: 'cookie-parser', cb: cookieParser('secret')},
+        {name: 'session', cb: session({secret: 'secret', key: 'sid', cookie: {secure: true}})},
+        {name: 'csrf', cb: Csrf.csrf()},
+        {name: 'csrf-local-token', cb: Csrf.localToken()},
+        {name: 'static', cb: express.static(__dirname+'/../public')}
       ]);
 
     app
       .middlewares()
-      .before('static', {name: 'routes', exec: function() {
+      .before('static', {name: 'routes', fn: function() {
         app.use(route);
       }});
 
