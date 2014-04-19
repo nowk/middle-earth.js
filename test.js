@@ -168,6 +168,34 @@ describe("middle-earth", function() {
       }, "Middleware named `two` could not be found");
     });
   });
+
+  it("supports pathed middlewares", function(done) {
+    var one = function(req, res, next) {
+      res.send({one: true});
+    };
+
+    app
+      .middlewares([
+        {name: 'one', fn: one, path: "/one"}
+      ])
+      .finish();
+
+    app.get("/", function(req, res, next) {
+      res.send(401);
+    });
+
+    request(app)
+      .get("/one")
+      .expect(200, {
+        one: true
+      })
+      .end(function() {
+        request(app)
+          .get("/")
+          .expect(401)
+          .end(done);
+      });
+  });
 });
 
 
