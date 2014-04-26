@@ -174,6 +174,38 @@ Equivalent to:
     app.use(express.static(__dirname+'/../public'));
 
 
+---
+
+Removing a middleware from the queue.
+
+    app
+      .middlewares([
+        {name: 'body-parser', cb: bodyParser()},
+        {name: 'method-override', cb: methodOverride()},
+        {name: 'static', cb: express.static(__dirname+'/../public')},
+        {name: 'logger', cb: logger()}
+      ])
+
+    if ('test' === process.env.NODE_ENV) {
+      app
+        .middlewares()
+        .remove('logger');
+    }
+
+    app.middlewares().finish();
+
+
+Equivalent to:
+
+    app.use(bodyParser());
+    app.use(methodOverride());
+    app.use(express.static(__dirname+'/../public'));
+
+    if ('test' != process.env.NODE_ENV) {
+      app.use(logger());
+    }
+
+
 ## Important
 
 This does not alter middlewares already applied (`use`'d) on the `app`. 
