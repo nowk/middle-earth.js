@@ -146,6 +146,50 @@ describe("middle-earth", function() {
       .end(done);
   });
 
+  it("supports removing a middleware from queue", function(done) {
+    app
+      .middlewares([
+        {name: 'one', cb: mw('one')},
+        {name: 'two', cb: mw('two')},
+        {name: 'three', cb: mw('three')}
+      ]);
+
+    app.middlewares().remove('two');
+    app.middlewares().finish();
+
+    app.get("/", cb);
+
+    request(app)
+      .get("/")
+      .expect(200, {
+        middlewares: ['one', 'three']
+      })
+      .end(done);
+  });
+
+  describe('remove', function() {
+    it("does nothing if the middleware doesn't exist", function(done) {
+      app
+        .middlewares([
+          {name: 'one', cb: mw('one')},
+          {name: 'two', cb: mw('two')},
+          {name: 'three', cb: mw('three')}
+        ])
+        .remove('four')
+        .finish();
+
+      app.get('/', cb);
+
+      request(app)
+        .get("/")
+        .expect(200, {
+          middlewares: ['one', 'two', 'three']
+        })
+        .end(done);
+    });
+  });
+
+
   describe("before", function() {
     it("throws an error if the middleware is not found", function() {
       assert.throw(function() {

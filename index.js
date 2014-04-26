@@ -134,6 +134,26 @@ MiddleEarth.prototype.after = insert(true);
 
 
 /*
+ * remove a middleware from queue
+ *
+ * @param {String} name
+ * @return {MiddleEarth}
+ */
+
+MiddleEarth.prototype.remove = function(name) {
+  var index = indexOf.call(this, name);
+
+  if (index === -1) {
+    return this;
+  }
+
+  this.middlewares.splice(index, 1);
+
+  return this;
+};
+
+
+/*
  * insert method
  *
  * @param {Boolean} after
