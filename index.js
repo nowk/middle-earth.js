@@ -125,7 +125,15 @@ MiddleEarth.prototype.overwrite = function(name, mw) {
     return this;
   }
 
-  this.middlewares.splice(index, 1, mw);
+  if ('function' === typeof mw) {
+    if ('fn' in this.middlewares[index]) {
+      this.middlewares[index].fn = mw;
+    } else {
+      this.middlewares[index].cb = mw;
+    }
+  } else  {
+    this.middlewares.splice(index, 1, mw);
+  }
 
   return this;
 };

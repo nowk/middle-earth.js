@@ -309,6 +309,74 @@ describe("middle-earth", function() {
       .end(done, done);
   });
 
+  describe('overwrite', function() {
+    it('accepts just a middleware', function(done) {
+      app
+        .middlewares([
+          {name: 'overwrite-me', cb: mw('one')}
+        ])
+        .overwrite('overwrite-me', mw('two'));
+
+      assert.lengthOf(app.middlewares().middlewares, 1);
+
+      app.middlewares().finish();
+      app.get('/', cb);
+
+      request(app)
+        .get('/')
+        .expect(200, {
+          middlewares: ['two']
+        })
+        .end(done, done);
+    });
+
+    it('also resolves overwriting functions', function(done) {
+      var route = express.Router();
+      route.get("/posts", function(req, res, next) {
+        res.send({middlewares: res.locals.middlewares});
+      });
+
+      var route2 = express.Router();
+      route2.get("/comments", function(req, res, next) {
+        res.send({comments: true});
+      });
+
+      app
+        .middlewares([
+          {name: 'one', cb: mw('one')},
+          {name: 'two', cb: mw('two')}
+        ])
+        .after('one', {name: 'routes', fn: function() {
+          app.use(route);
+        }})
+        .overwrite('routes', function() {
+          app.use(route2);
+        })
+        .finish();
+
+      app.get('/', cb);
+
+      request(app)
+        .get("/")
+        .expect(200, {
+          middlewares: ['one', 'two']
+        })
+        .end(function() {
+          request(app)
+            .get("/posts")
+            .expect(404)
+            .end(function() {
+              request(app)
+                .get("/comments")
+                .expect(200, {
+                  comments: true
+                })
+                .end(done, done);
+            });
+        });
+    });
+  });
+
   describe("finish", function() {
     it("clears out the middlewares queue", function() {
       app

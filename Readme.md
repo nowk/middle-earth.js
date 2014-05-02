@@ -234,6 +234,17 @@ Equivalent to:
     app.use(fn2());
 
 
+You may also just pass it a middlware/function. 
+
+      app
+        .middelwares()
+        .overwrite('overwrite-me', function(req, res, next) {
+          next();
+        });
+
+*Note, make sure you don't confuse your "middlewares" with the "function" executables you can add to the queue.*
+
+
 ## Important
 
 This does not alter middlewares already applied (`use`'d) on the `app`. 
