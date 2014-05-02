@@ -1,6 +1,6 @@
 {
   "name": "middle-earth",
-  "version": "0.0.4",
+  "version": "0.0.5",
   "description": "Middlware manager for express.js",
   "main": "index.js",
   "scripts": {
