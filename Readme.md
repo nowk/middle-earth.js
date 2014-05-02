@@ -205,6 +205,34 @@ Equivalent to:
       app.use(logger());
     }
 
+---
+
+Ovewrite an existing middleware in the queue.
+
+    app
+      .middlewares([
+        {name: 'overwrite-me', cb: fn1()},
+        {name: 'no-touchy', cb: fn2()}
+      ]);
+
+    if ('test' === process.env.NODE_ENV) {
+      app
+        .middelwares()
+        .overwrite('overwrite-me', {name: 'diff-name', cb: fn3()});
+    }
+
+    app.middelwares().finish();
+
+Equivalent to:
+
+    if ('test' === process.env.NODE_ENV) {
+      app.use(fn3());
+    } else {
+      app.use(fn1());
+    }
+
+    app.use(fn2());
+
 
 ## Important
 

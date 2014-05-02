@@ -288,6 +288,27 @@ describe("middle-earth", function() {
     }, "Middleware with name `one` already exists");
   });
 
+  it("allows for forced overwrites of the middleware", function(done) {
+    app
+      .middlewares([
+        {name: 'overwrite-me', cb: mw('one')},
+        {name: 'no-touchy', cb: mw('three')}
+      ])
+      .overwrite('overwrite-me', {name: 'diff-name', cb: mw('two')});
+
+    assert.lengthOf(app.middlewares().middlewares, 2);
+
+    app.middlewares().finish();
+    app.get('/', cb);
+
+    request(app)
+      .get('/')
+      .expect(200, {
+        middlewares: ['two', 'three']
+      })
+      .end(done, done);
+  });
+
   describe("finish", function() {
     it("clears out the middlewares queue", function() {
       app

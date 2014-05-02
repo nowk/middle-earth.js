@@ -112,6 +112,26 @@ MiddleEarth.prototype.append = function(mws) {
 
 
 /*
+ * overwrites an existing middleware
+ *
+ * @param {String} name
+ * @param {Object} mw
+ * @return {MiddleEarth}
+ */
+
+MiddleEarth.prototype.overwrite = function(name, mw) {
+  var index = indexOf.call(this, name);
+  if (index === -1) {
+    return this;
+  }
+
+  this.middlewares.splice(index, 1, mw);
+
+  return this;
+};
+
+
+/*
  * inserts a middleware before another
  *
  * @param {String} name
