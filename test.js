@@ -342,8 +342,8 @@ describe("middle-earth", function() {
     });
   });
 
-  describe("exec", function() {
-    it("invocates exec instead of applying it to `use`", function(done) {
+  describe("execution of functions", function() {
+    it("invocates fn at the point in the middlware queue", function(done) {
       var route = express.Router();
       route.get("/posts", function(req, res, next) {
         res.send({middlewares: res.locals.middlewares});
