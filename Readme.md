@@ -1,7 +1,7 @@
+# Middle Earth
+
 [![Build Status](https://travis-ci.org/nowk/middle-earth.js.svg?branch=master)](https://travis-ci.org/nowk/middle-earth.js)
 [![Code Climate](https://codeclimate.com/github/nowk/middle-earth.js.png)](https://codeclimate.com/github/nowk/middle-earth.js)
-
-# Middle Earth
 
 Middleware manager for [Express.js](https://github.com/visionmedia/express)
 
